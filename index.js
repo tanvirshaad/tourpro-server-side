@@ -22,21 +22,32 @@ async function run() {
         await client.connect();
         const database = client.db('tour_shop');
         const servicesCollection = database.collection('services');
+        const orderCollection = database.collection('orders');
 
         //GET services API
         app.get('/services', async (req, res) => {
             const cursor = servicesCollection.find({});
             const services = await cursor.toArray();
-
             res.send(services);
         });
         //GET single service API
         app.get('/services/:id', async (req, res) => {
             const id = req.params.id;
-            console.log('getting id:', id);
             const query = { _id: ObjectId(id) };
             const service = await servicesCollection.findOne(query);
             res.json(service);
+        });
+        //Order API
+        app.post('/orders', async (req, res) => {
+            const order = req.body;
+            const result = await orderCollection.insertOne(order);
+            res.json(result);
+        });
+        //GET orders API
+        app.get('/orders', async (req, res) => {
+            const cursor = orderCollection.find({});
+            const orders = await cursor.toArray();
+            res.send(orders);
         });
     } finally {
         // await client.close()
